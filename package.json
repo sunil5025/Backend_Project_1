@@ -4,9 +4,8 @@
   "description": "javascript_nodejs_mongodb_express_mongoose_dotenv_npm_nodemon",
   "main": "index.js",
   "type": "module",
-
   "scripts": {
-     "dev": "nodemon -r dotenv/config --experimental-json-modules index.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules index.js"
   },
   "keywords": [
     "javascript",
@@ -17,6 +16,8 @@
   "author": "Sunil Kumar",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "mongodb": "^6.15.0",
