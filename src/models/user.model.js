@@ -81,7 +81,8 @@ return jwt.sign(
         id: this._id,
         email: this.email,
         username: this.username,
-        fullName: this.fullName
+        fullName: this.fullName,
+        password: this.password
     },
     process.env.ACCESS_TOKEN_SECRET,
     {

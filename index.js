@@ -5,14 +5,14 @@ import connectDB from "./src/db/index2.js";
 import { app } from "./src/app.js";
 
 dotenv.config({
-    path: './.env'
+    path: "./env"
 })
 
 
  connectDB()
  .then(() => {
-    app.listen(process.env.PORT || 8000, () => {
-        console.log(`Server is running on PORT : 8000 [Congratulation]  ${process.env.PORT}`);
+    app.listen(process.env.PORT || 8001, () => {
+        console.log(`Server is running on PORT : 8001 [Congratulation]  ${process.env.PORT}`);
     })
  })
  .catch((error) => {

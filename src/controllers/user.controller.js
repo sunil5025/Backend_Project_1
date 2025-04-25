@@ -55,7 +55,7 @@
     }
 
     // // check if the user already exists (email)
-    const exitedUser = User.findOne({
+    const exitedUser = await User.findOne({
         $or: [{ email }, { username}]
     })
     if(exitedUser){
@@ -85,6 +85,10 @@
     // remove the local files after uploading to cloudinary if it is getting error [because of avatar is required field if we cannot check avatar and avatar is not uploaded to cloudinary then database will be broeken and we cannot remove the local file]
     if(!avatar){
         throw new ApiError(400, "Avatar upload failed")
+    }
+
+    if(!coverImage){
+        throw new ApiError(400, "Cover image upload failed")
     }
 
 

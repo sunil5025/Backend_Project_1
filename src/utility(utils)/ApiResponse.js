@@ -1,10 +1,6 @@
 class ApiResponse {
-    constructor(
-        statuscode, 
-        data, 
-        message = "Success"
-    ){
-        this.statusCode = this.statusCode,
+    constructor(statusCode, data, message = "Success"){
+        this.statusCode = statusCode,
         this.data = data,
         this.message = message,
         this.success = statusCode < 400                                             //HTTP response status codes indicate whether a specific HTTP request has been successfully completed. Responses are grouped in five classes:
