@@ -67,9 +67,11 @@
 
     // check for images, check for avatar
     const avatarLocalPath =  req.files?.avatar[0]?.path;
-    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path; //
 
-
+   
+    // check for cover image if it is not provided then we can set the default image in the database
+  
     let coverImageLocalPath;
     if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
        coverImageLocalPath = req.files.coverImage[0].path
