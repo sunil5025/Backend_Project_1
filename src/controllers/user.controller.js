@@ -61,11 +61,24 @@
     if(exitedUser){
         throw new ApiError(400, "User already exists")
     }
+    // console.log(req.body);
+
 
 
     // check for images, check for avatar
     const avatarLocalPath =  req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+       coverImageLocalPath = req.files.coverImage[0].path
+
+    }
+
+
+
+
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar is required")
@@ -82,6 +95,8 @@
     const coverImage =  await uploadOnCloudinary(coverImageLocalPath)
 
 
+    
+
     // remove the local files after uploading to cloudinary if it is getting error [because of avatar is required field if we cannot check avatar and avatar is not uploaded to cloudinary then database will be broeken and we cannot remove the local file]
     if(!avatar){
         throw new ApiError(400, "Avatar upload failed")
@@ -91,6 +106,9 @@
         throw new ApiError(400, "Cover image upload failed")
     }
 
+    // console.log(req.files);
+
+    
 
 ///// create user object - create entry in db
     // remove password and refresh token field from response [refresh token will be empty but after that also we have to check ]
