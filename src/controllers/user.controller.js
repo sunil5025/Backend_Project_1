@@ -3,7 +3,7 @@
  import {User} from "../models/user.model.js";
  import { uploadOnCloudinary } from "../utility(utils)/cloudniary.js";
  import { ApiResponse } from "../utility(utils)/ApiResponse.js";
-
+ import jwt from "jsonwebtoken";
 
 
  const generateAccessAndRefreshToken = async(userId) => {
@@ -268,6 +268,58 @@
 
 
 
+const refreshAccessToken = asyncHandler(async(req, res) => {
+    
+// cookies access token and refresh token
+// check if the refresh token is present in the cookies or not  
+// check if the refresh token is valid or not
+// check if the refresh token is present in the database or not
+// generate new access token and refresh token
+// send response to the client
+
+const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+
+if(!incomingRefreshToken){
+    throw new ApiError(400, "Unauthorized request")
+}
+   try {
+    const decodedToken =  jwt.verify(
+         incomingRefreshToken,
+         process.env.ACCESS_TOKEN_SECRET,
+     )
+ 
+     // user id from the decoded token
+    const user = await User.findById(decodedToken?._id)
+ 
+    if(!user){
+     throw new ApiError(401, "Invalid refresh token")
+    }
+ 
+    //match the refresh token with the user refresh token in the database
+    if(incomingRefreshToken !== user?.refreshToken){
+     throw new ApiError(401, "Refresh token is Expired or Used")
+    }
+ 
+    const options = {
+     httpOnly: true,
+     secure: true
+    }
+    const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+ 
+    return res.status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", newRefreshTokene, options)
+    .json(
+     new ApiResponse(200, {accessToken, newRefreshToken}, "Access token refreshed " )
+    )
+   } catch (error) {
+        console.log(error);
+        throw new ApiError(401, error?.message || "Invalid refresh token")
+   }
+
+
+})
+
 
 
 
@@ -278,7 +330,7 @@
      loginUser,
      logoutUser,    
      registerUser,
-     
+     refreshAccessToken
      //generateAccessAndRefreshToken
     
      
