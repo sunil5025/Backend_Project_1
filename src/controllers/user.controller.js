@@ -487,7 +487,8 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 })
 
 
-
+// get user channel profile using aggregation pipeline
+// get the user id from the request
 const getUserChannelProfile = asyncHandler(async(req, res) => {
    const {username} =  req.params
 
@@ -495,14 +496,16 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
     throw new ApiError(400, "Username is missing")
    }
 
+   // channel profile using aggregation pipeline
+   // get the user id from the request
    const channel = await User.aggregate([
     {
-        $match: {
-            username: username?.toLowerCase()
+        $match: {                                                
+            username: username?.toLowerCase()                   // match the username with the database
         },
     },    
         {
-            $lookup:{
+            $lookup:{                                          // join the subscription collection with the user collection using $lookup method
                 from: "subscription",
                 localField: "_id",
                 foreignField: "channel",
@@ -510,7 +513,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
             },
         },
         {
-            $lookup:{
+            $lookup:{                                       // join the subscriber collection with the user collection using $lookup method    //from: "subscription",    
                 from: "subscription",
                 localField: "_id",
                 foreignField: "subscriber",
@@ -519,14 +522,14 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         },
         {
            
-            $addFields:{
-                subscriberCount: {
+            $addFields:{                                            // add new fields to the user object using $addFields method
+                subscriberCount: {                                        // count the number of subscribers the user has
                     $size: "$subscribers"
                 },
-                channelsSubscribedToCount: {
+                channelsSubscribedToCount: {                          // count the number of channels the user is subscribed to  
                     $size: "$subscribedTo"
                 },
-                isSubscribed: {
+                isSubscribed: {                                        // check if the user is subscribed to the channel or not
                     $cond: {
                         if: { $in: [req.user?._id, "$subscribers.subscriber"] },
                         then: true,
@@ -536,7 +539,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
             },
         },
         {
-            $project: {
+            $project: {                                           // project the fields to be returned in the response    
                 createdAt: 1,
                 fullName: 1,
                 username: 1,
@@ -551,13 +554,15 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
     
 ])    
 
+// !channel?.length
+// check if the channel is not found or not
   if(!channel?.length){
     throw new ApiError(404, "Channel not found")
 
   }
     return res.status(200)
     .json(
-        new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+        new ApiResponse(200, channel[0], "Channel profile fetched successfully")                // channel[0] because we are using aggregation pipeline and it will return an array of objects
     )
 
 
