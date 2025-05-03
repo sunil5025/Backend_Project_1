@@ -4,6 +4,7 @@
  import { uploadOnCloudinary } from "../utility(utils)/cloudniary.js";
  import { ApiResponse } from "../utility(utils)/ApiResponse.js";
  import jwt from "jsonwebtoken";
+ import mongoose from "mongoose";
 
 
 
@@ -251,8 +252,8 @@
     await User.findByIdAndUpdate(
         req.user._id, 
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1 // remove refresh token from the database [this removes the field from document]
             }
         },
         {
@@ -284,7 +285,7 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
 // generate new access token and refresh token
 // send response to the client
 
-const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+const incomingRefreshToken = req.cookies.refreshToken && req.body.refreshToken
 
 if(!incomingRefreshToken){
     throw new ApiError(400, "Unauthorized request")
@@ -495,6 +496,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
    if(!username?.trim()){
     throw new ApiError(400, "Username is missing")
    }
+   console.log(username, "username from params");
 
    // channel profile using aggregation pipeline
    // get the user id from the request
@@ -560,6 +562,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
     throw new ApiError(404, "Channel not found")
 
   }
+  console.log("Username lowercase:", username?.toLowerCase());
     return res.status(200)
     .json(
         new ApiResponse(200, channel[0], "Channel profile fetched successfully")                // channel[0] because we are using aggregation pipeline and it will return an array of objects
@@ -568,6 +571,66 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
 })
 
+
+
+// get watched history
+const getWatchedHistory = asyncHandler(async(req, res) => {
+    // get the user id from the request
+    // get the watched history from the database
+    // send response to the client
+
+   const user = await User.aggregate([
+    {
+        $match:{
+           _id: new mongoose.Types.ObjectId(req.user._id)   // match the user id with the database
+        },
+        
+    },    
+        {
+            $lookup:{
+                from: "videos",
+                localField: "watchedHistory",
+                foreignField: "_id",
+                as: "watchedHistory",
+                pipeline:[
+                    {
+                        $lookup:{
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline:[
+                                {
+                                    $project:{
+                                        
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    },
+                                },
+                            ],
+
+                        },
+                    },
+                    {
+                        $addFields:{
+                            owner:{
+                                $first: "$owner"   // get the first element of the owner array
+                            },
+                        },
+                    },
+                ],
+            },
+        },
+       
+    
+   ])
+  
+   return res.status(200)
+   .json(
+    new ApiResponse(200, user[0].watchedHistroy, "Watched history fetched successfully")   // user[0]?.watchedHistory because we are using aggregation pipeline and it will return an array of objects
+   )
+},)
 
 // export the functions
  export {
@@ -580,7 +643,8 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
      updateAccountDeatils,
      updateUserAvatar,
      updateUserCoverImage,
-     getUserChannelProfile
+     getUserChannelProfile,
+     getWatchedHistory
      //generateAccessAndRefreshToken
     
      
