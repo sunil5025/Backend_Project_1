@@ -579,7 +579,7 @@ const getWatchedHistory = asyncHandler(async(req, res) => {
     // get the watched history from the database
     // send response to the client
 
-   const user = await User.aggregate([
+   const user = await User.aggregate([                      // get the watched history from the database
     {
         $match:{
            _id: new mongoose.Types.ObjectId(req.user._id)   // match the user id with the database
@@ -587,21 +587,21 @@ const getWatchedHistory = asyncHandler(async(req, res) => {
         
     },    
         {
-            $lookup:{
+            $lookup:{                               // join the videos collection with the user collection using $lookup method 
                 from: "videos",
                 localField: "watchedHistory",
                 foreignField: "_id",
                 as: "watchedHistory",
-                pipeline:[
+                pipeline:[                          // pipeline to get the video details from the videos collection
                     {
-                        $lookup:{
+                        $lookup:{               // join the user collection with the videos collection using $lookup method
                             from: "users",
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
-                            pipeline:[
+                            pipeline:[                  // pipeline to get the user details from the user collection
                                 {
-                                    $project:{
+                                    $project:{          // project the fields to be returned in the response
                                         
                                         fullName: 1,
                                         username: 1,
@@ -613,7 +613,7 @@ const getWatchedHistory = asyncHandler(async(req, res) => {
                         },
                     },
                     {
-                        $addFields:{
+                        $addFields:{                    // add new fields to the video object using $addFields method
                             owner:{
                                 $first: "$owner"   // get the first element of the owner array
                             },
