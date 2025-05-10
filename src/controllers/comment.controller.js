@@ -4,6 +4,7 @@ import {ApiError} from "../utility(utils)/ApiError.js";
 import {ApiResponse} from "../utility(utils)/ApiResponse.js";  
 import {asyncHandler} from "../utility(utils)/async_handler.js";
 
+
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const {videoId} = req.params
@@ -28,6 +29,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
     );
 
 })
+
+
+
+
 
 const addComment = asyncHandler(async (req, res) => {
     // TODO: add a comment to a video
@@ -64,6 +69,10 @@ const addComment = asyncHandler(async (req, res) => {
     )
 })
 
+
+
+
+
 const updateComment = asyncHandler(async (req, res) => {
     // TODO: update a comment
     const {commentId} = req.params
@@ -99,6 +108,10 @@ const updateComment = asyncHandler(async (req, res) => {
     
 
 })
+
+
+
+
 
 const deleteComment = asyncHandler(async (req, res) => {
     // TODO: delete a comment
